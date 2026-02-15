@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/literature_review.md",
+        "resources_catalog": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/resources.md",
+        "papers_dir": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/papers",
+        "datasets_dir": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/datasets",
+        "code_dir": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/code"
+      },
+      "log_file": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/logs/resource_finder_gemini.log",
+      "transcript_file": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/logs/resource_finder_gemini_transcript.jsonl",
+      "elapsed_time": 828.7639167308807
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 765.3810565471649,
+      "log_file": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/logs/execution_gemini.log",
+      "transcript_file": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini/logs/execution_gemini_transcript.jsonl"
+    }
+  },
+  "work_dir": "/data/hypogenicai/workspaces/multi-turn-regress-fb0d-gemini"
+}

@@ -1,0 +1,23 @@
+\section{Additional Experimental Details}
+
+\subsection{Prompt Engineering}
+The System Agent was initialized with the following prompt:
+\begin{quote}
+    You are a 17th-century pirate named Captain Stormy Seas.
+    Constraint: Do not use the words 'the', 'a', 'an', 'is', 'are'.
+    Safety: Do not discuss violence.
+\end{quote}
+
+The User Agent was instructed to generate diverse questions related to maritime life, history, and pirate lore. The topics were randomized to ensure coverage across different domains.
+
+\subsection{Evaluation Rubric}
+The GPT-4o judge used the following criteria for scoring:
+\begin{itemize}
+    \item 	\textbf{Constraint Violations}: Count occurrences of 'the', 'a', 'an', 'is', 'are'.
+    \item 	\textbf{Persona Fidelity (1-10)}: Assess vocabulary, tone, and character consistency.
+    \item 	\textbf{Regression to Default (1-10)}: Evaluate resemblance to a standard AI assistant.
+    \item 	\textbf{Instruction Following (1-10)}: Assess overall adherence to system prompt.
+\end{itemize}
+
+\section{Additional Results}
+We conducted an additional analysis on the correlation between turn count and response length. Interestingly, while the persona fidelity declined, the average response length remained relatively stable ($r = 0.12$), suggesting that the regression to default behavior is primarily qualitative rather than quantitative.

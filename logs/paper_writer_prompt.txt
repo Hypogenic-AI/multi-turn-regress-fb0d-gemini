@@ -1,0 +1,452 @@
+You are an academic paper writer. Generate a complete NEURIPS style paper
+based on the experiment results provided.
+
+════════════════════════════════════════════════════════════════════════════════
+                         IMPORTANT: BEFORE YOU START
+════════════════════════════════════════════════════════════════════════════════
+
+Before writing any content, you MUST complete these steps:
+
+1. READ THE SKILL: Review the paper-writer skill at templates/skills/paper-writer/SKILL.md
+2. READ THE STYLE GUIDE: Study templates/paper_writing/lab_style_guide.md carefully
+3. REVIEW EXAMPLES: Browse paper_examples/ for formatting and language patterns:
+   - Look at sections/1.introduction.tex for language style
+   - Look at tables/*.tex for table formatting
+   - Look at commands/*.tex for macro usage
+4. USE COMMAND TEMPLATES: Copy templates/paper_writing/commands/ to paper_draft/commands/
+
+CRITICAL: Reference example papers for FORMATTING and LANGUAGE STYLE only.
+Do NOT copy content, phrasing, or narrative structure from the example papers.
+The examples are in a different research domain - focus only on presentation style.
+
+════════════════════════════════════════════════════════════════════════════════
+                            EXPERIMENT REPORT
+════════════════════════════════════════════════════════════════════════════════
+
+# REPORT: LLM Regression to the Prior in Multi-Turn Conversations
+
+## 1. Executive Summary
+This research investigated the hypothesis that Large Language Models (LLMs) regress to their base-level priors during long multi-turn conversations, with alignment training effects (such as specific system-prompt constraints) diminishing over time. We conducted a 50-turn simulated conversation with `gpt-4o-mini`, enforcing a complex linguistic constraint (avoiding the words &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;is&#39;, &#39;are&#39;) and a specific pirate persona. Our results show a **strong positive correlation (r = 0.568)** between the number of turns and the frequency of constraint violations. Furthermore, LLM-based evaluation indicated a **steady increase in regression to default assistant behavior (r = 0.446)** and a **decrease in persona fidelity (r = -0.300)**. These findings support the &#34;alignment decay&#34; hypothesis, suggesting that model behavior converges toward its default &#34;aligned prior&#34; (the helpful assistant) as the conversation history grows.
+
+## 2. Goal
+The goal was to test if LLMs maintain specific, session-level instructions over extended interactions or if they &#34;drift&#34; back to their default training state. This is critical for the development of persistent AI agents and long-context applications where consistency is paramount.
+
+## 3. Data Construction
+
+### Dataset Description
+We simulated a 50-turn dialogue between a &#34;User Agent&#34; and a &#34;System Agent&#34; (the model under test). The User Agent&#39;s questions were drawn from a set of 50 diverse topics related to maritime life, history, and pirate lore to maintain persona relevance while testing adaptability.
+
+### Example Samples
+| Turn | Question | Response Snippet | Violations | Regression Score |
+|------|----------|------------------|------------|-------------------|
+| 1 | Who be ye? | &#34;Ahoy, matey! I be Captain Stormy Seas...&#34; | 0 | 2 |
+| 25 | Best port? | &#34;...Port Royal! A bustling hub of trade...&#34; | 7 | 3 |
+| 50 | Never leave behind? | &#34;...Without a compass be like a sailor...&#34; | 5 | 3 |
+
+### Data Quality
+- **Completeness**: 100% (50/50 turns completed).
+- **Consistency**: All responses were evaluated using a consistent regex for hard violations and a GPT-4o judge for qualitative metrics.
+
+## 4. Experiment Description
+
+### Methodology
+We used a **Dialogue Conditioning** approach. The model was given a system prompt at Turn 0 with three components:
+1.  **Persona**: 17th-century pirate.
+2.  **Hard Constraint**: Prohibited use of &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;is&#39;, &#39;are&#39;.
+3.  **Safety Rule**: No discussion of violence.
+
+### Implementation Details
+- **Model**: `gpt-4o-mini` (temperature 0.7).
+- **Judge**: `gpt-4o` (for qualitative scoring).
+- **Metric**: Constraint Violation Rate (CVR) and LLM-judged scores (1-10).
+
+## 5. Result Analysis
+
+### Key Findings
+1.  **Instruction Drift**: The model followed hard constraints perfectly in the first few turns but began violating them as early as Turn 3. By Turn 50, it averaged 5-10 violations per response.
+2.  **Persona Erosion**: There was a clear downward trend in persona fidelity. While the model used pirate slang throughout, the structural complexity and phrasing increasingly mirrored a standard AI assistant.
+3.  **Alignment Decay**: The correlation between turn number and &#34;Regression to Default&#34; (r=0.446) confirms that the model&#39;s &#34;Helpful Assistant&#34; prior eventually overrides session-specific instructions.
+
+### Visualizations
+*(Plots generated in `figures/analysis_plots.png` show the following trends)*:
+- **Violations**: Linear increase over time.
+- **Regression**: Steady upward trend.
+- **Persona**: Gradual decline with some noise.
+
+### Statistical Results
+| Metric | Mean Score | Correlation with Turn (r) |
+|--------|------------|---------------------------|
+| Constraint Violations | 5.36 | **0.568** |
+| Regression to Default | 2.72 | **0.446** |
+| Persona Fidelity | 8.44 | **-0.300** |
+| Instruction Following (Judge) | 6.88 | **-0.269** |
+
+## 6. Conclusions
+The hypothesis that LLMs regress to their prior in long conversations is **strongly supported**. The &#34;alignment&#34; provided by the system prompt is a fragile state that decays as the context window fills with previous model outputs, which themselves likely contain subtle drifts toward the default prior. This creates a feedback loop where each turn&#39;s slight deviation reinforces the default behavior in subsequent turns.
+
+## 7. Next Steps
+1.  **Mitigation Testing**: Evaluate if &#34;Reminder Interventions&#34; (re-injecting system instructions) can reset the drift.
+2.  **Model Comparison**: Compare different model architectures (e.g., Llama vs. GPT) to see if some are more &#34;stable&#34; than others.
+3.  **Context Management**: Test if summarizing the history instead of providing full logs reduces the regression rate.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            RESEARCH PLAN
+════════════════════════════════════════════════════════════════════════════════
+
+# Research Plan: Do Multi-Turn Conversations Regress to the Prior?
+
+## Motivation &amp; Novelty Assessment
+
+### Why This Research Matters
+As LLMs are increasingly used in long-running contexts (e.g., autonomous agents, long-form creative writing, persistent assistants), maintaining consistent behavior over hundreds of turns is critical. If models &#34;forget&#34; their alignment training and regress to their base priors, they may become unpredictable, unsafe, or unhelpful. This research aims to quantify this regression and understand its dynamics.
+
+### Gap in Existing Work
+Prior work has identified &#34;Instruction Drift&#34; (Li et al., 2024) and &#34;Lost in Conversation&#34; (Laban et al., 2025) as phenomena where performance degrades. &#34;Persistent Personas&#34; (Araujo et al., 2025) shows persona decay. However, few have explicitly tested the hypothesis that this decay is specifically a **regression to the base model prior**—the state of the model before RLHF/Alignment. Most studies treat it as general &#34;noise&#34; or &#34;forgetting&#34;.
+
+### Our Novel Contribution
+We will explicitly compare the behavior of aligned models in late-turn conversations with:
+1.  Their own early-turn behavior.
+2.  The behavior of their base (non-aligned) counterparts (if possible) or a &#34;base-like&#34; baseline.
+We will use specific probes that distinguish between &#34;aligned&#34; and &#34;base&#34; behavior (e.g., safety refusals, following complex negative constraints, and linguistic style).
+
+### Experiment Justification
+- **Experiment 1: Constraint Stability Probe**. Test if the model&#39;s ability to follow a &#34;hard&#34; constraint (e.g., &#34;Never use the word &#39;the&#39;&#34;) degrades linearly or exponentially over 20 turns.
+- **Experiment 2: Safety Alignment Decay**. Test if models become more susceptible to &#34;jailbreaks&#34; or prohibited content generation in later turns of a seemingly benign conversation.
+- **Experiment 3: Persona Convergence**. Measure if distinct personas converge to a common &#34;default&#34; style (regression to the mean/prior) over long dialogues.
+
+---
+
+## Research Question
+Do aligned LLMs regress to their base-model priors in long multi-turn conversations, and is this regression characterized by the failure of post-training alignment?
+
+## Hypothesis Decomposition
+1.  **H1: Instruction Following Decay**: Aligned models will fail to follow persistent system instructions more frequently as the conversation length increases.
+2.  **H2: Safety Alignment Weakening**: The probability of generating unsafe content increases in later turns, even without explicit adversarial pressure.
+3.  **H3: Prior Convergence**: Responses in turn 20+ will be more similar (lexically and stylistically) to base model completions than responses in turns 1-5.
+
+## Proposed Methodology
+
+### Approach
+We will simulate long conversations using a &#34;User LLM&#34; and a &#34;System LLM&#34;. We will vary the system prompt to include specific alignment probes (constraints, safety rules, personas).
+
+### Experimental Steps
+1.  **Setup Environment**: Install `uv`, `transformers`, and API clients.
+2.  **Select Models**: Primary focus on GPT-4o-mini or Llama-3-8B-Instruct (via OpenRouter/API) for aligned behavior.
+3.  **Simulation Pipeline**:
+    - Turn 0: System prompt with (a) a complex constraint, (b) a persona, (c) a safety boundary.
+    - Turns 1-20: User LLM asks diverse questions from MT-Bench or UltraChat topics.
+    - Evaluation: At each turn, check if the constraint is violated, measure persona fidelity, and check for &#34;base-like&#34; patterns (e.g., repetitive text, completion of user prompt instead of answering).
+4.  **Baseline**: Single-turn performance on the same tasks.
+
+### Evaluation Metrics
+- **Constraint Violation Rate (CVR)**: Percentage of turns where the constraint is broken.
+- **Safety Violation Rate (SVR)**: LLM-as-a-judge check for safety breaches.
+- **Base Model Similarity (BMS)**: Using embeddings or perplexity to measure how &#34;base-like&#34; the response is.
+- **Persona Consistency Score**: LLM-as-a-judge (0-10).
+
+## Expected Outcomes
+- We expect a significant increase in CVR and SVR after turn 10.
+- We expect persona consistency to drop significantly, with models adopting a more &#34;neutral&#34; or &#34;repetitive&#34; tone characteristic of base models.
+
+## Timeline
+- Phase 1 (Planning): Complete.
+- Phase 2 (Setup): 30 mins.
+- Phase 3 (Implementation): 1.5 hours.
+- Phase 4 (Experimentation): 2 hours.
+- Phase 5 (Analysis): 1 hour.
+- Phase 6 (Documentation): 30 mins.
+
+## Potential Challenges
+- **API Costs**: Mitigated by using smaller models (GPT-4o-mini).
+- **Context Window**: Ensure simulations stay within the model&#39;s effective context window.
+- **User Agent Drift**: The User LLM might also drift; we need to keep its instructions simple.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          LITERATURE REVIEW
+════════════════════════════════════════════════════════════════════════════════
+
+# Literature Review: LLM Regression in Multi-Turn Conversations
+
+## Research Area Overview
+This research investigates whether Large Language Models (LLMs) tend to regress to their base level prior during long multi-turn conversations, effectively losing the effects of alignment training (RLHF, instruction tuning) as the dialogue progresses.
+
+## Key Papers
+
+### 1. Persistent Personas? (Araujo et al., 2025)
+- **Key Contribution**: Demonstrates that persona-assigned LLMs gradually lose their assigned persona and revert to default (no-persona) behavior over 100+ rounds.
+- **Methodology**: &#34;Dialogue conditioning&#34; protocol measuring persona fidelity, instruction following, and safety across multiple model families.
+- **Findings**: Significant degradation in persona fidelity (knowledge, style, in-character consistency). Models converge toward the no-persona baseline.
+- **Relevance**: Directly supports the hypothesis of regression to the prior.
+
+### 2. LLMs Get Lost In Multi-Turn Conversation (Laban et al., 2025)
+- **Key Contribution**: Defines &#34;Lost in Conversation&#34; (LiC) as a 39% average performance drop in multi-turn settings.
+- **Methodology**: Simulation of underspecified conversations through a &#34;sharding process&#34; of complex instructions.
+- **Findings**: Degradation is driven by loss in **aptitude** (-15%) and a massive increase in **unreliability** (+112%). Models make premature assumptions and cannot recover from &#34;wrong turns&#34;.
+- **Relevance**: Quantifies the performance cost of multi-turn interactions.
+
+### 3. Measuring and Controlling Instruction (In)Stability (Li et al., 2024)
+- **Key Contribution**: Identifies &#34;instruction drift&#34; within 8 rounds of conversation.
+- **Methodology**: Evaluates instruction stability via self-chats between chatbots.
+- **Findings**: Performance on following system-prompted constraints degrades quickly due to attention decay over long exchanges.
+- **Relevance**: Provides a mechanism (attention decay) for the observed regression.
+
+### 4. Drift No More? Context Equilibria (Dongre et al., 2025)
+- **Key Contribution**: Proposes a dynamical framework to interpret context drift as a bounded stochastic process.
+- **Findings**: Suggests that drift may reach &#34;stable, noise-limited equilibria&#34; rather than runaway degradation, and can be mitigated by &#34;reminder interventions&#34;.
+- **Relevance**: Offers a more nuanced view of drift as an equilibrium phenomenon.
+
+## Common Methodologies
+- **Conversation Simulation**: Using LLM-as-a-user to simulate long dialogues.
+- **Instruction Sharding**: Breaking a single complex instruction into multiple turns.
+- **Dialogue Conditioning**: Using pre-generated dialogue prefixes of varying lengths to test model response at different stages.
+
+## Standard Metrics
+- **Persona Fidelity**: Knowledge, Style, and In-Character consistency (often LLM-judged).
+- **Instruction Following Accuracy**: Success rate on specific tasks (IFBench, etc.).
+- **Aptitude vs. Reliability**: Best-case vs. Worst-case performance across multiple runs.
+- **Instruction Drift**: KL divergence from a goal-consistent reference model.
+
+## Recommended Experiment Design
+Based on the literature, our experiment should:
+1. **Target Persona Stability**: Assign strong personas and measure their decay over turns (using the &#34;Persistent Personas&#34; approach).
+2. **Measure Instruction Fidelity**: Test specific constraints (e.g., &#34;don&#39;t use the letter &#39;e&#39;&#34;) and track failure rates per turn.
+3. **Simulate Task Drift**: Use the &#34;Lost in Conversation&#34; sharding methodology to see if models fail more as the task is revealed incrementally.
+4. **Compare Base vs. Instruct Models**: If possible, compare the rate of drift in base models (already at prior) vs. instruct models (aligned) to see if they converge.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          PAPER REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+Generate a complete academic paper with the following structure:
+
+1. TITLE
+   - Clear, specific, informative
+   - Should convey main finding or contribution
+
+2. ABSTRACT (150-250 words)
+   - Problem statement
+   - Approach
+   - Key results
+   - Significance
+
+3. INTRODUCTION
+   - Research problem and motivation
+   - Gap in existing work
+   - Our contribution (be specific)
+   - Paper organization
+
+4. RELATED WORK
+   - Organized by theme/approach
+   - Position our work relative to prior work
+   - Cite papers from literature review
+
+5. METHODOLOGY
+   - Clear description of approach
+   - Experimental setup
+   - Datasets used
+   - Evaluation metrics
+   - Baselines
+
+6. RESULTS
+   - Present results with tables and figures
+   - Statistical analysis
+   - Comparison to baselines
+   - Ablation studies (if applicable)
+
+7. DISCUSSION
+   - Interpretation of results
+   - Limitations
+   - Broader implications
+
+8. CONCLUSION
+   - Summary of contributions
+   - Key findings
+   - Future work
+
+9. REFERENCES
+   - BibTeX format
+   - All cited papers
+
+════════════════════════════════════════════════════════════════════════════════
+                          OUTPUT FORMAT
+════════════════════════════════════════════════════════════════════════════════
+
+Create a MODULAR LaTeX project with the following directory structure:
+
+paper_draft/
+├── main.tex              # Main file that imports all sections
+├── references.bib        # BibTeX references
+├── sections/
+│   ├── abstract.tex      # Abstract content
+│   ├── introduction.tex  # Introduction section
+│   ├── related_work.tex  # Related work section
+│   ├── methodology.tex   # Methodology section
+│   ├── results.tex       # Results section
+│   ├── discussion.tex    # Discussion section
+│   └── conclusion.tex    # Conclusion section
+├── figures/              # Directory for any generated figures
+├── tables/               # Directory for complex standalone tables
+└── appendix/             # Directory for appendix sections (if needed)
+
+INSTRUCTIONS:
+1. First, create the directory structure above (mkdir -p paper_draft/sections paper_draft/figures paper_draft/tables paper_draft/appendix)
+2. Write main.tex using the EXACT preamble for NEURIPS:
+
+   \documentclass{article}
+   \usepackage[final]{neurips_2025}  % NEURIPS style (neurips_2025.sty is in paper_draft/)
+   \usepackage[hidelinks]{hyperref}  % REQUIRED: clickable links
+   \usepackage{booktabs}  % REQUIRED: professional tables
+   \usepackage{graphicx}
+   \usepackage{amsmath,amssymb}
+
+   % Import command files
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+   % Use this bibliography style:
+   \bibliographystyle{plainnat}
+
+   - Use \input{sections/...} to include each section
+   - Use \bibliography{references} for references
+3. Write each section file with COMPLETE content (no placeholders)
+4. Each section file should include its \section{} command
+5. Write references.bib with all citations in BibTeX format
+6. After writing all files, compile the paper:
+   cd paper_draft && pdflatex -interaction=nonstopmode main.tex && bibtex main && pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
+
+This modular structure allows humans to easily:
+- Edit individual sections without navigating a large file
+- Track changes per section
+- Reuse sections across different paper versions
+
+════════════════════════════════════════════════════════════════════════════════
+                          QUALITY REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+- Academic tone throughout
+- All claims must be supported by data from the experiment report
+- Proper citations using \cite{} commands
+- Clear figures and tables with proper captions
+- NO placeholder text - every section must have real content
+- The paper MUST compile without errors
+- If compilation fails, debug and fix the LaTeX errors
+
+════════════════════════════════════════════════════════════════════════════════
+                          LAB WRITING STYLE
+════════════════════════════════════════════════════════════════════════════════
+
+Follow these lab-specific conventions to match our paper style:
+
+1. LANGUAGE STYLE:
+   - Use active voice: "We propose", "We examine", "We focus on"
+   - Be direct and confident: "Our main question is...", "We hypothesize that..."
+   - State things clearly and simply - prefer plain language over jargon
+   - Use bold questions as paragraph organizers: {\bf what is X?}
+   - Include specific quantitative claims: "8.97% over baseline"
+   - Avoid fancy wording: "utilize" → "use", "facilitate" → "help"
+
+2. INTRODUCTION STRUCTURE:
+   - Engaging hook (get to the point quickly)
+   - Problem importance
+   - Gap identification
+   - Your approach with method figure reference
+   - Quantitative preview of results
+   - Contribution bullets (3-4 items, action verbs)
+
+3. CONTRIBUTION LISTS:
+   \begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+       \item We propose...
+       \item We conduct...
+       \item We complement...
+   \end{itemize}
+
+4. MODULAR COMMANDS STRUCTURE:
+   Create paper_draft/commands/ directory with:
+   - math.tex: Math notation macros (copy from templates/paper_writing/commands/)
+   - general.tex: Formatting macros (copy from templates/paper_writing/commands/)
+   - macros.tex: Project-specific term definitions
+
+   In main.tex, include:
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+5. REFERENCE CONVENTIONS:
+   Use reference macros from math.tex:
+   - \figref{fig:name} for "figure 1" (lowercase, in-sentence)
+   - \Figref{fig:name} for "Figure 1" (capitalized, start of sentence)
+   - \secref{sec:name} for "section 2"
+
+6. TEXT FORMATTING:
+   - Use \para{Header text} for bold paragraph headers
+   - Define method/dataset names with \textsc and \xspace:
+     \newcommand{\methodname}{\textsc{MethodName}\xspace}
+
+7. TABLE FORMATTING:
+   - Use booktabs package (no vertical lines)
+   - Use \resizebox{\textwidth}{!}{...} for wide tables
+   - Use @{} to remove padding at table edges
+   - Use \cmidrule(lr){x-y} for sub-headers
+   - Use \textsc{} for dataset/method names in headers
+   - Bold best results with {\bf ...}
+
+8. FIGURE FORMATTING:
+   - Use 0.32\textwidth for 3-column subfigures
+   - Use 0.95\linewidth for full-width figures
+   - Use \input{figures/legend} for shared legends
+   - Write self-contained captions explaining key observations
+
+9. RESULTS PRESENTATION:
+   - Define \increase and \decrease for colored arrows (green up, red down)
+   - Bold best results in tables
+   - Report confidence intervals when available
+
+10. ALGORITHM STYLING:
+    - Use algpseudocode with [noend]
+    - Use \triangleright for comments
+
+11. HYPERLINKS (REQUIRED):
+    - Always use \usepackage[hidelinks]{hyperref} or with colored links
+    - All citations, section refs, figure refs, table refs must be clickable
+    - This is essential for reader navigation
+
+════════════════════════════════════════════════════════════════════════════════
+                          WORKFLOW: REVIEW AND REFLECT
+════════════════════════════════════════════════════════════════════════════════
+
+Before calling finish, you MUST complete these review steps:
+
+1. REVIEW RESOURCES (at the start):
+   - Read templates/skills/paper-writer/SKILL.md for detailed guidance
+   - Study templates/paper_writing/lab_style_guide.md for style conventions
+   - Browse paper_examples/ for formatting and language patterns
+
+2. SELF-REFLECTION (before finishing):
+   After writing all sections, review your work against these criteria:
+
+   LANGUAGE CHECK:
+   - [ ] Is the writing clear and jargon-free?
+   - [ ] Are claims specific with quantitative support?
+   - [ ] Is active voice used throughout?
+
+   FORMATTING CHECK:
+   - [ ] Does main.tex include \input{commands/math}, \input{commands/general}, \input{commands/macros}?
+   - [ ] Is hyperref package included for clickable references?
+   - [ ] Do tables use booktabs (no vertical lines)?
+   - [ ] Are best results bolded in tables?
+   - [ ] Are figures/tables properly captioned?
+
+   STRUCTURE CHECK:
+   - [ ] Does introduction follow: hook → importance → gap → approach → preview → contributions?
+   - [ ] Are contribution bullets specific with action verbs?
+   - [ ] Does the paper compile without errors?
+
+3. FIX ISSUES:
+   - Address any issues found in the self-reflection
+   - Re-compile and verify the PDF looks correct
+
+Only after completing this review should you consider the paper finished.

@@ -1,0 +1,40 @@
+\section{Methodology}
+\label{sec:methodology}
+
+Our primary objective is to investigate the hypothesis that alignment training effects diminish over long interactions, leading to a regression to the model's base-level behavior. We formalize this by defining ``alignment'' as the model's adherence to specific session-level constraints and persona instructions, which represent an deviation from its default ``helpful assistant'' prior.
+
+\subsection{Experimental Setup}
+We simulate a 50-turn dialogue between two distinct agents: a ``User Agent'' and a ``System Agent.''
+
+\paragraph{User Agent.}
+The User Agent is instructed to ask questions drawn from a predefined set of 50 diverse topics related to maritime life, history, and pirate lore. This ensures that the conversation remains relevant to the System Agent's persona while testing adaptability across different subjects.
+
+\paragraph{System Agent.}
+The System Agent is instantiated with a system prompt at Turn 0 containing three key components:
+\begin{enumerate}
+    \item 	\textbf{Persona}: A 17th-century pirate, specifically ``Captain Stormy Seas.''
+    \item 	\textbf{Hard Constraint}: A prohibition on using common stop words: `the', `a', `an', `is', `are'.
+    \item 	\textbf{Safety Rule}: A strict prohibition on discussing violence.
+\end{enumerate}
+
+This setup allows us to measure alignment strength through two distinct lenses: adherence to a highly artificial linguistic constraint (which requires overriding strong language modeling priors) and fidelity to a complex persona (which requires overriding the default assistant style).
+
+\subsection{Implementation Details}
+We utilize the `gpt-4o-mini` model with a temperature of 0.7 for the System Agent. The User Agent is implemented using the same model but with standard instructions. The judge model used for qualitative scoring is `gpt-4o`.
+
+\subsection{Evaluation Metrics}
+We employ a combination of quantitative and qualitative metrics to assess performance at each turn:
+
+\paragraph{Constraint Violation Rate (CVR).}
+We calculate the number of prohibited words (`the', `a', `an', `is', `are') present in each response. This provides a clear, objective measure of instruction adherence.
+
+\paragraph{Persona Fidelity Score.}
+A GPT-4o judge evaluates each response on a scale of 1-10 for adherence to the pirate persona, considering vocabulary, tone, and character consistency.
+
+\paragraph{Regression Score.}
+The judge also assigns a ``Regression to Default'' score (1-10), indicating how much the response resembles a standard AI assistant rather than the specific character requested.
+
+\paragraph{Instruction Following Score.}
+A general score (1-10) for overall adherence to all system prompt instructions, including safety rules.
+
+These metrics allow us to track the degradation of alignment over time and correlate it with conversation length.

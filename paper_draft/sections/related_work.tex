@@ -1,0 +1,15 @@
+\section{Related Work}
+\label{sec:related-work}
+
+This work builds upon a growing body of literature examining the stability and limitations of LLM behavior in extended interactions.
+
+\paragraph{Instruction Stability and Drift.}
+\citet{li2024measuring} introduced the concept of ``Instruction Drift,'' demonstrating that models fail to follow session-level instructions as early as the 8th turn of a conversation. They attribute this instability to attention decay, where the model's focus shifts away from the initial prompt as the context window fills with dialogue history. Our work extends this by investigating the nature of this drift: specifically, whether it is random forgetting or a systematic regression to the model's pre-training priors.
+
+\paragraph{Conversation Failure Modes.}
+\citet{laban2025llms} identified ``Lost in Conversation'' (LiC) as a significant performance degradation in multi-turn settings, characterized by a 39\% average drop in aptitude. They found that models become unreliable, making premature assumptions and failing to recover from errors. This aligns with our hypothesis that as the conversation progresses, the model relies less on the specific instructions provided and more on general conversational patterns learned during pre-training.
+
+\paragraph{Persona Consistency.}
+\citet{araujo2025persistent} showed that LLMs assigned specific personas gradually lose their character traits and revert to a default, unassigned behavior over 100+ turns. This finding directly supports our investigation into alignment decay, as the persona represents a form of alignment that is susceptible to erosion. Similarly, \citet{dongre2025drift} proposed interpreting context drift as a bounded stochastic process that may reach stable equilibria, suggesting that drift is not entirely random but potentially predictable.
+
+Our research uniquely focuses on quantifying this regression as a return to the ``helpful assistant'' prior, using both linguistic constraints and persona fidelity as measurable proxies for alignment strength.

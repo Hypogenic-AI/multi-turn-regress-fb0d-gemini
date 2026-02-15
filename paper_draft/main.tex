@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage[final]{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[hidelinks]{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+% Import command files
+\input{commands/math}
+\input{commands/general}
+\input{commands/macros}
+
+	itle{LLM Regression to the Prior in Multi-Turn Conversations}
+
+\author{
+  Haokun Liu 
+  Hypogenic AI 
+  	exttt{haokun@hypogenic.ai}
+}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/abstract}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methodology}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+
+ewpage
+\appendix
+\input{sections/appendix}
+
+\end{document}

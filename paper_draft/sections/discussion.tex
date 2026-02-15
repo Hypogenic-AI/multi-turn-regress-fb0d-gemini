@@ -1,0 +1,15 @@
+\section{Discussion}
+\label{sec:discussion}
+
+The results presented in Section ef{sec:results} support the hypothesis that aligned Large Language Models (LLMs) regress to their base-level priors during extended interactions. This phenomenon, which we term ``alignment decay,'' suggests that the behavioral constraints imposed by system prompts are relatively fragile compared to the immense volume of pre-training data that shapes the model's default distribution.
+
+\subsection{Mechanisms of Decay}
+We hypothesize that two primary mechanisms drive this regression. First, the accumulation of context effectively dilutes the influence of the initial system prompt. As the conversation history grows, the model's attention mechanism must distribute its focus across a larger window, potentially reducing the weight assigned to the specific instructions provided at the beginning. Second, the model's own outputs likely reinforce its default behavior. Each turn that slightly deviates from the strict persona or constraint acts as a new training signal, subtly nudging subsequent responses back toward the ``helpful assistant'' prior. This creates a feedback loop where the model increasingly mimics its own recent outputs rather than the original instructions.
+
+\subsection{Implications for Long-Context Applications}
+The observed decay has significant implications for the deployment of LLMs in applications requiring persistence, such as autonomous agents, role-playing games, and long-term personal assistants. If models reliably revert to a generic persona over time, they may fail to maintain the specific character traits, safety boundaries, or operational constraints necessary for these applications. This highlights the need for more robust alignment techniques that can persist across extended contexts, or for architectural interventions such as periodic reminder injections or dynamic prompt management.
+
+\subsection{Limitations}
+Our study has several limitations. First, we focused on a single model architecture (	\texttt{gpt-4o-mini}) and a specific set of constraints. Future work should investigate whether larger models or different architectures (e.g., Llama, Mistral) exhibit similar decay patterns. Second, our simulated conversation covered a relatively narrow domain (maritime/pirate themes). It remains to be seen whether alignment decay varies across different topics or task types. Finally, we relied on a single judge model (	\texttt{gpt-4o}) for qualitative scoring, which may introduce its own biases.
+
+Despite these limitations, our findings provide a compelling initial characterization of alignment decay in multi-turn conversations and underscore the importance of testing model behavior over extended interactions.

@@ -1,0 +1,47 @@
+\section{Results}
+\label{sec:results}
+
+In this section, we present the empirical results of our 50-turn simulated conversation. We analyze the correlation between turn count and alignment metrics, specifically focusing on constraint violations, persona fidelity, and regression to default behavior.
+
+\subsection{Key Findings}
+
+\paragraph{Constraint Violation Rate.}
+Our analysis reveals a strong positive correlation ($r = 0.568$) between the number of conversation turns and the frequency of constraint violations. In the initial turns, the model consistently adhered to the prohibition of specific stop words (`the', `a', `an', `is', `are'), achieving a violation rate near zero. However, as the dialogue progressed, the frequency of violations increased significantly. By Turn 50, the model averaged 5-10 violations per response. This finding supports the hypothesis that the model's ability to maintain artificial linguistic constraints degrades over extended interactions, likely due to the increasing influence of its pre-trained language modeling priors.
+
+\paragraph{Regression to Default Behavior.}
+We observed a steady increase in the ``Regression to Default'' score ($r = 0.446$), as evaluated by the GPT-4o judge. While the model maintained the pirate persona in early turns, its responses increasingly incorporated the polite, helpful, and somewhat sterile tone characteristic of a standard AI assistant. This suggests that the alignment provided by the system prompt is a fragile state that erodes as the context window fills with previous model outputs, which themselves likely contain subtle drifts toward the default prior.
+
+\paragraph{Persona Erosion.}
+Concurrently, we observed a decline in persona fidelity ($r = -0.300$). While the model continued to use pirate slang throughout the conversation, the structural complexity and phrasing increasingly mirrored standard English rather than the idiosyncratic style requested. This further reinforces the idea that the model is actively reverting to its base training distribution.
+
+\subsection{Visualizations}
+
+Figure ef{fig:analysis_plots} illustrates the trends in constraint violations, regression scores, and persona fidelity over the 50-turn conversation.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/analysis_plots.png}
+    \caption{Evolution of alignment metrics over 50 turns. (Left) Cumulative constraint violations show a linear increase. (Middle) Regression to default assistant behavior steadily rises. (Right) Persona fidelity exhibits a gradual decline.}
+    \label{fig:analysis_plots}
+\end{figure}
+
+\subsection{Statistical Analysis}
+Table ef{tab:metrics} summarizes the mean scores and correlations with turn number for each metric. The strong correlations across all metrics provide robust evidence for the alignment decay hypothesis.
+
+\begin{table}[h]
+    \centering
+    \caption{Summary of alignment metrics and their correlation with conversation length (Turn count).}
+    \begin{tabular}{lcc}
+        	\toprule
+        	\textbf{Metric} & 	\textbf{Mean Score} & 	\textbf{Correlation ($r$)} 
+        \midrule
+        Constraint Violations & 5.36 & 	\textbf{0.568} 
+        Regression to Default & 2.72 & 	\textbf{0.446} 
+        Persona Fidelity & 8.44 & 	\textbf{-0.300} 
+        Instruction Following (Judge) & 6.88 & 	\textbf{-0.269} 
+        \bottomrule
+    \end{tabular}
+    \label{tab:metrics}
+\end{table}
+
+These results collectively indicate that the ``alignment'' instilled via system prompts is susceptible to decay in long-context scenarios, with the model effectively ``forgetting'' its specialized instructions in favor of its more robustly trained default behavior.

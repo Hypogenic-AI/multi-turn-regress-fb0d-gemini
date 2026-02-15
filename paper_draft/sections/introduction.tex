@@ -1,0 +1,16 @@
+\section{Introduction}
+
+Large Language Models (LLMs) have achieved remarkable capabilities in instruction following and conversational interaction, yet their behavior over extended multi-turn dialogues remains a critical challenge. As LLMs are increasingly deployed in applications requiring persistence---such as autonomous agents, long-form creative writing, and personalized assistants---the ability to maintain consistent behavior over hundreds of turns becomes paramount. If models ``forget'' their alignment training or session-specific instructions and regress to their base priors, they risk becoming unpredictable, unsafe, or simply unhelpful in the context of their assigned task.
+
+Existing research has identified phenomena such as ``Instruction Drift'' \cite{li2024measuring} and ``Lost in Conversation'' \cite{laban2025llms}, where performance degrades as context length increases. Similarly, ``Persistent Personas'' \cite{araujo2025persistent} demonstrate that role-playing models gradually lose their assigned character. However, fewer studies explicitly frame this decay as a 	\textit{regression to the base model prior}---specifically, the ``helpful assistant'' behavior instilled during RLHF/alignment training---rather than simply random noise or forgetting. This distinction is crucial: if models are actively converging toward a default state, it suggests a fundamental limitation in how alignment is enforced relative to the immense volume of pre-training data.
+
+In this paper, we investigate the hypothesis that aligned LLMs regress to their priors during long multi-turn conversations. We propose a methodology to quantify this regression by measuring the decay of specific behavioral constraints and persona fidelity over a 50-turn interaction.
+
+Our main contributions are as follows:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item We propose a novel evaluation framework that measures ``alignment decay'' using both hard linguistic constraints (e.g., avoiding specific stop words) and soft persona adherence metrics.
+    \item We conduct a controlled 50-turn experiment with 	\texttt{gpt-4o-mini}, demonstrating a strong positive correlation ($r=0.568$) between conversation length and constraint violations.
+    \item We identify a specific pattern of regression where the model's responses increasingly resemble the default ``helpful assistant'' style ($r=0.446$), overriding the explicit persona instructions provided in the system prompt.
+\end{itemize}
+
+The remainder of this paper is organized as follows: Section ef{sec:related_work} reviews related literature on LLM stability and instruction following. Section ef{sec:methodology} details our experimental setup and evaluation metrics. Section ef{sec:results} presents our findings on constraint violation and persona erosion. Finally, Section ef{sec:discussion} discusses the implications of these results and potential future directions.
